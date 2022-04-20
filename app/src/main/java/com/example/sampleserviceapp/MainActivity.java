@@ -37,8 +37,6 @@ public class MainActivity extends AppCompatActivity {
             //intentService.putExtra("count",50);
             //Calling Started Service
             //startService(intentService);
-            //Calling IntentService
-            //MyIntentService.startActionFoo(MainActivity.this, "PARAM1", "PARAM2");
             //Calling Bound Service
             bindService(intentService, mServiceConnection, Context.BIND_AUTO_CREATE);
         });
