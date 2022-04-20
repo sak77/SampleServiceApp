@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.sshriwas.sampleserviceapp">
+    package="com.example.sampleserviceapp">
 
     <application
         android:allowBackup="true"
@@ -33,7 +33,7 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.example.sshriwas.sampleserviceapp"/>
+                <action android:name="com.example.sampleserviceapp"/>
             </intent-filter>
         </service>
     </application>
