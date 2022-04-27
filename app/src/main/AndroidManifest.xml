@@ -21,6 +21,7 @@
             android:name=".MyStartedService"
             android:enabled="true"
             android:exported="true" />
+        <!--
         <service
             android:name=".MyBoundService"
             android:enabled="true"
@@ -33,6 +34,7 @@
                 <action android:name="com.example.sampleserviceapp"/>
             </intent-filter>
         </service>
+        -->
     </application>
 
 </manifest>
