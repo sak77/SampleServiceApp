@@ -1,13 +1,11 @@
 package com.example.sampleserviceapp
 
 import androidx.appcompat.app.AppCompatActivity
-import com.example.sampleserviceapp.MyBoundService
-import com.example.sampleserviceapp.R
 import android.widget.Toast
 import android.content.Intent
-import com.example.sampleserviceapp.MyStartedService
 import android.content.ServiceConnection
 import android.content.ComponentName
+import android.content.Context
 import android.os.*
 import android.view.View
 import android.widget.Button
@@ -21,6 +19,24 @@ import android.widget.Button
 class MainActivity : AppCompatActivity() {
     var myBoundService: MyBoundService? = null
     var mBound = false
+    companion object {
+        const val TAG = "MainActivity"
+    }
+
+    private val boundConnectionCallback = object: ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            mBound = true
+            val myBinder = service as MyBoundService.MyBinder
+            myBoundService = myBinder.service
+            myBoundService!!.sayHello("Sweta", this@MainActivity)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            mBound = false
+            myBoundService = null
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,14 +50,32 @@ class MainActivity : AppCompatActivity() {
         }
         val btnStart = findViewById<Button>(R.id.button3)
         btnStart.setOnClickListener { view: View? ->
-            val serviceIntent = Intent(this@MainActivity, MyStartedService::class.java)
-            serviceIntent.putExtra("count", 10)
             /*
-            Just like an Activity, a Service can be started by calling startService(Intent) method.
+            Like an Activity, a Service can be started by calling startService(Intent) method.
             This sends an intent to the Android system with details to start the service.
             The system will then look up the service in the manifest and launch it if possible.
             So, its important to declare the service in manifest as well.
-             */startService(serviceIntent)
+             */
+            //callMyStartedService()
+            bindToLocalService()
+        }
+    }
+
+    private fun callMyStartedService() {
+        val serviceIntent = Intent(this@MainActivity, MyStartedService::class.java)
+        serviceIntent.putExtra("count", 10)
+        startService(serviceIntent)
+    }
+
+    /*
+    Calling bind service more than once on the same service does not invoke the callback.
+     */
+    private fun bindToLocalService() {
+        if (mBound) {
+            myBoundService!!.sayHello("Sweta", this@MainActivity)
+        } else {
+            val serviceIntent = Intent(this@MainActivity, MyBoundService::class.java)
+            bindService(serviceIntent, boundConnectionCallback, Context.BIND_AUTO_CREATE)
         }
     }
 
@@ -49,7 +83,7 @@ class MainActivity : AppCompatActivity() {
     ServiceConnection class is a callback mechanism for Bound services to notify to
     the calling component whether the service connection was successful or not.
      */
-    var mServiceConnection: ServiceConnection = object : ServiceConnection {
+    var boundIpcConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(componentName: ComponentName, iBinder: IBinder) {
             mBound = true
             val messenger = Messenger(iBinder)
@@ -77,12 +111,6 @@ class MainActivity : AppCompatActivity() {
             } catch (e: RemoteException) {
                 e.printStackTrace()
             }
-            /*
-            MyBoundService.MyBinder myBinder = (MyBoundService.MyBinder)iBinder;
-            myBoundService = myBinder.getService();
-            String response = myBoundService.sayHello("Saket");
-            Log.v("TAG",response);
-*/
         }
 
         override fun onServiceDisconnected(componentName: ComponentName) {
@@ -93,7 +121,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStop() {
         super.onStop()
-        //Is it important to unbind a bound service when no longer required?? Maybe not..
-        if (mBound) unbindService(mServiceConnection)
+        //It is important to unbind a service when no longer required
+        if (mBound) unbindService(boundConnectionCallback)
     }
 }

@@ -21,11 +21,11 @@
             android:name=".MyStartedService"
             android:enabled="true"
             android:exported="true" />
-        <!--
         <service
             android:name=".MyBoundService"
             android:enabled="true"
             android:exported="true" />
+        <!--
         <service
             android:name=".MyBoundIPCService"
             android:enabled="true"
